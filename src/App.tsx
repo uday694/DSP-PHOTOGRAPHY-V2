@@ -70,11 +70,9 @@ export function App() {
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Interactive 3D Studio Controls
   const [cameraPreset, setCameraPreset] = useState<'hero' | 'lens' | 'gallery'>('hero');
   const [shutterFlash, setShutterFlash] = useState(0);
 
-  // Live Studio State
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -83,11 +81,9 @@ export function App() {
   const [events, setEvents] = useState<EventItem[]>(DEFAULT_EVENTS);
   const [reviews, setReviews] = useState<ReviewItem[]>(DEFAULT_REVIEWS);
 
-  // Gallery Filter & Lightbox Navigation
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // WhatsApp Booking Form State
   const [bookingService, setBookingService] = useState('Wedding Photography');
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -95,21 +91,19 @@ export function App() {
   const [eventLocation, setEventLocation] = useState('');
   const [requirements, setRequirements] = useState('');
 
-  // Merge Drone & LED Screen services automatically if not already present
   const displayServices = useMemo(() => {
     const existingTitles = new Set(services.map((s) => s.title.toLowerCase()));
-    const missingExtras = EXTRA_STUDIO_SERVICES.filter(
-      (extra) =>
-        !existingTitles.has(extra.title.toLowerCase()) &&
-        !(
-          extra.title.toLowerCase().includes('drone') &&
-          [...existingTitles].some((t) => t.includes('drone'))
-        ) &&
-        !(
-          extra.title.toLowerCase().includes('led') &&
-          [...existingTitles].some((t) => t.includes('led'))
-        )
-    );
+    const missingExtras = EXTRA_STUDIO_SERVICES.filter((extra) => {
+      const titleLower = extra.title.toLowerCase();
+      if (existingTitles.has(titleLower)) return false;
+      if (titleLower.includes('drone') && [...existingTitles].some((t) => t.includes('drone'))) {
+        return false;
+      }
+      if (titleLower.includes('led') && [...existingTitles].some((t) => t.includes('led'))) {
+        return false;
+      }
+      return true;
+    });
     return [...services, ...missingExtras];
   }, [services]);
 
@@ -148,7 +142,6 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Private Admin Shortcut (Ctrl + Shift + A) & Browser Back/Forward Support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
@@ -230,7 +223,6 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#050507] text-[#F7F6F2] relative">
-      {/* Cinematic Branded Preloader */}
       <AnimatePresence>
         {loadingScreen && (
           <motion.div
@@ -255,7 +247,6 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {/* Luxury Glass Navigation Bar (Public Visitors Only) */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#050507]/85 backdrop-blur-xl border-b border-[#D4AF37]/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <a href="#home">
@@ -312,7 +303,6 @@ export function App() {
         )}
       </header>
 
-      {/* 1. INTERACTIVE 3D STUDIO HERO */}
       <section id="home" className="relative min-h-screen flex flex-col justify-between overflow-hidden pt-20 pb-8">
         <StudioScene3D
           photos={publishedPhotos.slice(0, 4)}
@@ -326,7 +316,6 @@ export function App() {
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/65 pointer-events-none" />
 
-        {/* Top Interactive Studio View Controls */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 pt-4 flex flex-wrap items-center justify-between gap-3 pointer-events-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E0E12]/80 backdrop-blur-md border border-[#D4AF37]/30 text-[10px] uppercase tracking-[0.25em] text-[#F5E6B3]">
             <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
@@ -364,7 +353,6 @@ export function App() {
           </div>
         </div>
 
-        {/* Hero Headline & CTAs */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pointer-events-none mt-auto pt-44">
           <motion.p
             initial={{ opacity: 0, y: 15 }}
@@ -406,7 +394,6 @@ export function App() {
         </div>
       </section>
 
-      {/* Luxury Brand Strip */}
       <div className="border-y border-[#D4AF37]/15 bg-[#0E0E12]/70 py-5 px-4">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-[11px] uppercase tracking-[0.3em] text-[#8E8E93]">
           <span className="flex items-center gap-2 text-[#F5E6B3]">
@@ -423,7 +410,6 @@ export function App() {
         </div>
       </div>
 
-      {/* 2. EXHIBITION PORTFOLIO GALLERY */}
       <section id="gallery" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
@@ -519,7 +505,6 @@ export function App() {
         )}
       </section>
 
-      {/* Fullscreen Lightbox with Previous / Next Controls */}
       <AnimatePresence>
         {activeLightboxPhoto && lightboxIndex !== null && (
           <motion.div
@@ -585,7 +570,6 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {/* 3. SIGNATURE SERVICES (Includes Drone Cinematography & LED Screen) */}
       <section id="services" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-[0.35em] text-[#D4AF37]">
@@ -632,7 +616,6 @@ export function App() {
         </div>
       </section>
 
-      {/* 4. CLIENT EXPERIENCE WORKFLOW */}
       <section id="process" className="py-20 px-4 sm:px-6 bg-[#0E0E12]/70 border-y border-[#D4AF37]/15">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -679,7 +662,6 @@ export function App() {
         </div>
       </section>
 
-      {/* 5. ABOUT THE STUDIO */}
       <section id="about" className="py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
@@ -741,7 +723,6 @@ export function App() {
         </div>
       </section>
 
-      {/* 6. ACHIEVEMENTS, EVENTS & REVIEWS */}
       <section id="achievements" className="py-24 px-4 sm:px-6 bg-[#0E0E12]/55 border-y border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="space-y-4">
@@ -811,7 +792,6 @@ export function App() {
         </div>
       </section>
 
-      {/* 7. WHATSAPP BOOKING & STUDIO CONTACT */}
       <section id="booking" className="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-5 space-y-6">
@@ -940,7 +920,6 @@ export function App() {
         </div>
       </section>
 
-      {/* Luxury Footer */}
       <footer className="border-t border-[#D4AF37]/15 py-12 px-4 text-center text-xs text-[#8E8E93]">
         <div className="flex justify-center mb-4">
           <BrandLogo brandName={settings.brand_name} compact />
@@ -951,7 +930,6 @@ export function App() {
         <p className="mt-2">© {new Date().getFullYear()} {settings.brand_name}. All rights reserved.</p>
       </footer>
 
-      {/* Floating WhatsApp Concierge Button */}
       <a
         href={https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000'}}
         target="_blank"
