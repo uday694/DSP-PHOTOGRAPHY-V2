@@ -174,17 +174,17 @@ export function App() {
     e.preventDefault();
     const cleanPhone = settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000';
     const message = [
-      Hello *${settings.brand_name}*! I would like to enquire about a photoshoot:,
-      ``,
-      *Service:* ${bookingService},
-      *Name:* ${clientName},
-      *Phone:* ${clientPhone},
-      *Event Date:* ${eventDate || 'Flexible'},
-      *Location:* ${eventLocation || 'To be discussed'},
-      *Details:* ${requirements || 'Please share package details.'},
-    ].join('\n');
+      "Hello " + settings.brand_name + "! I would like to enquire about a photoshoot:",
+      "",
+      "Service: " + bookingService,
+      "Name: " + clientName,
+      "Phone: " + clientPhone,
+      "Event Date: " + (eventDate || "Flexible"),
+      "Location: " + (eventLocation || "To be discussed"),
+      "Details: " + (requirements || "Please share package details."),
+    ].join("\n");
 
-    window.open(https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}, '_blank');
+    window.open("https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(message), "_blank");
   };
 
   const publishedPhotos = photos.filter((p) => p.is_published);
@@ -931,7 +931,7 @@ export function App() {
       </footer>
 
       <a
-        href={https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000'}}
+      href={"https://wa.me/" + (settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000')}
         target="_blank"
         rel="noreferrer"
         aria-label="Chat on WhatsApp"
