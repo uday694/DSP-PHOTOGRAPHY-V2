@@ -51,6 +51,7 @@ const EXTRA_STUDIO_SERVICES: ServiceItem[] = [
     price_label: 'Custom Package',
     description:
       '4K stabilized aerial drone coverage for grand weddings, pre-wedding shoots, baraats, and scenic outdoor venues.',
+    icon_name: 'Camera',
     sort_order: 98,
   },
   {
@@ -59,10 +60,10 @@ const EXTRA_STUDIO_SERVICES: ServiceItem[] = [
     price_label: 'Custom Package',
     description:
       'High-brightness indoor & outdoor P3/P4 LED video walls with live camera feed telecast and custom stage visuals.',
+    icon_name: 'Sparkles',
     sort_order: 99,
   },
 ];
-
 export function App() {
   const [loadingScreen, setLoadingScreen] = useState(true);
   const [isAdminRoute, setIsAdminRoute] = useState(
