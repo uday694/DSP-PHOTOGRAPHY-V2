@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import {
   Upload,
   Trash2,
-  frames,
   Eye,
   EyeOff,
   Plus,
   LogOut,
+  frames,
   Image as ImageIcon,
   FolderPlus,
   Briefcase,
@@ -28,7 +28,7 @@ import {
   ServiceItem,
   Achievement,
   Drone,
-  Led screen;
+  Led screen,
   EventItem,
   ReviewItem,
 } from '../types';
