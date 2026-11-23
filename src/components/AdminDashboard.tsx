@@ -6,7 +6,6 @@ import {
   EyeOff,
   Plus,
   LogOut,
-  frames,
   Image as ImageIcon,
   FolderPlus,
   Briefcase,
@@ -27,8 +26,6 @@ import {
   Photo,
   ServiceItem,
   Achievement,
-  Drone,
-  Led screen,
   EventItem,
   ReviewItem,
 } from '../types';
