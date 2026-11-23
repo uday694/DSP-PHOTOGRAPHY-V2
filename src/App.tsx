@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -13,7 +13,6 @@ import {
   Award,
   Calendar,
   Star,
-  Lock,
   ArrowUpRight,
   Send,
   Image as ImageIcon,
@@ -44,6 +43,25 @@ import {
 import { BrandLogo } from './components/BrandLogo';
 import { StudioScene3D } from './components/StudioScene3D';
 import { AdminDashboard } from './components/AdminDashboard';
+
+const EXTRA_STUDIO_SERVICES: ServiceItem[] = [
+  {
+    id: 'srv-drone-cinema',
+    title: 'Drone Cinematography',
+    price_label: 'Custom Package',
+    description:
+      '4K stabilized aerial drone coverage for grand weddings, pre-wedding shoots, baraats, and scenic outdoor venues.',
+    sort_order: 98,
+  },
+  {
+    id: 'srv-led-screen',
+    title: 'LED Screen & Live Wall',
+    price_label: 'Custom Package',
+    description:
+      'High-brightness indoor & outdoor P3/P4 LED video walls with live camera feed telecast and custom stage visuals.',
+    sort_order: 99,
+  },
+];
 
 export function App() {
   const [loadingScreen, setLoadingScreen] = useState(true);
@@ -76,6 +94,18 @@ export function App() {
   const [eventDate, setEventDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [requirements, setRequirements] = useState('');
+
+  // Merge Drone & LED Screen services automatically if not already present
+  const displayServices = useMemo(() => {
+    const existingTitles = new Set(services.map((s) => s.title.toLowerCase()));
+    const missingExtras = EXTRA_STUDIO_SERVICES.filter(
+      (extra) =>
+        !existingTitles.has(extra.title.toLowerCase()) &&
+        !(extra.title.toLowerCase().includes('drone') && [...existingTitles].some((t) => t.includes('drone'))) &&
+        !(extra.title.toLowerCase().includes('led') && [...existingTitles].some((t) => t.includes('led')))
+    );
+    return [...services, ...missingExtras];
+  }, [services]);
 
   const fetchAllStudioData = async () => {
     if (!supabase) return;
@@ -112,11 +142,28 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const openAdmin = () => {
-    window.history.pushState({}, '', '/admin');
-    setIsAdminRoute(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Private Admin Shortcut (Ctrl + Shift + A) & Browser Back/Forward Support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        window.history.pushState({}, '', '/admin');
+        setIsAdminRoute(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    const handlePopState = () => {
+      setIsAdminRoute(
+        window.location.pathname === '/admin' || window.location.hash === '#/admin'
+      );
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const exitAdmin = () => {
     window.history.pushState({}, '', '/');
@@ -128,17 +175,17 @@ export function App() {
     e.preventDefault();
     const cleanPhone = settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000';
     const message = [
-      `Hello *${settings.brand_name}*! I would like to enquire about a photoshoot:`,
+      Hello *${settings.brand_name}*! I would like to enquire about a photoshoot:,
       ``,
-      `*Service:* ${bookingService}`,
-      `*Name:* ${clientName}`,
-      `*Phone:* ${clientPhone}`,
-      `*Event Date:* ${eventDate || 'Flexible'}`,
-      `*Location:* ${eventLocation || 'To be discussed'}`,
-      `*Details:* ${requirements || 'Please share package details.'}`,
+      *Service:* ${bookingService},
+      *Name:* ${clientName},
+      *Phone:* ${clientPhone},
+      *Event Date:* ${eventDate || 'Flexible'},
+      *Location:* ${eventLocation || 'To be discussed'},
+      *Details:* ${requirements || 'Please share package details.'},
     ].join('\n');
 
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}, '_blank');
   };
 
   const publishedPhotos = photos.filter((p) => p.is_published);
@@ -158,7 +205,7 @@ export function App() {
         settings={settings}
         categories={categories}
         photos={photos}
-        services={services}
+        services={displayServices}
         achievements={achievements}
         events={events}
         reviews={reviews}
@@ -202,7 +249,7 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {/* Luxury Glass Navigation Bar */}
+      {/* Luxury Glass Navigation Bar (Public Visitors Only) */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-[#050507]/85 backdrop-blur-xl border-b border-[#D4AF37]/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <a href="#home">
@@ -219,15 +266,9 @@ export function App() {
           </nav>
 
           <div className="hidden sm:flex items-center gap-3">
-            <button
-              onClick={openAdmin}
-              className="px-4 py-2 rounded-full border border-[#D4AF37]/40 text-[#D4AF37] text-[11px] uppercase tracking-wider font-medium hover:bg-[#D4AF37] hover:text-[#050507] transition flex items-center gap-1.5"
-            >
-              <Lock className="w-3.5 h-3.5" /> Studio Admin
-            </button>
             <a
               href="#booking"
-              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5E6B3] text-[#050507] text-[11px] uppercase tracking-wider font-bold hover:brightness-110 transition shadow-lg shadow-[#D4AF37]/20"
+              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5E6B3] text-[#050507] text-[11px] uppercase tracking-wider font-bold hover:brightness-110 transition shadow-lg shadow-[#D4AF37]/20"
             >
               Book a Shoot
             </a>
@@ -261,15 +302,6 @@ export function App() {
                 {item.label}
               </a>
             ))}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                openAdmin();
-              }}
-              className="w-full py-3 rounded-xl border border-[#D4AF37] text-[#D4AF37] text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2"
-            >
-              <Lock className="w-4 h-4" /> Owner Upload Dashboard
-            </button>
           </div>
         )}
       </header>
@@ -370,14 +402,16 @@ export function App() {
 
       {/* Luxury Brand Strip */}
       <div className="border-y border-[#D4AF37]/15 bg-[#0E0E12]/70 py-5 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-[11px] uppercase tracking-[0.3em] text-[#8E8E93]">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-[11px] uppercase tracking-[0.3em] text-[#8E8E93]">
           <span className="flex items-center gap-2 text-[#F5E6B3]">
             <Aperture className="w-4 h-4 text-[#D4AF37]" /> 4K Cinema Pipeline
           </span>
           <span>•</span>
-          <span>Master Prime Optics</span>
+          <span>4K Aerial Drone</span>
           <span>•</span>
-          <span>Bespoke Color Grading</span>
+          <span>HD LED Live Walls</span>
+          <span>•</span>
+          <span>Master Prime Optics</span>
           <span>•</span>
           <span>Heirloom Fine-Art Albums</span>
         </div>
@@ -428,17 +462,17 @@ export function App() {
               <ImageIcon className="w-7 h-7 text-[#D4AF37]" />
             </div>
             <h3 className="font-display text-3xl font-bold text-white">
-              Your Exhibition Awaits Its First Frame
+              Exhibition Curating in Progress
             </h3>
             <p className="text-sm text-[#8E8E93] mt-2 leading-relaxed">
-              No stock placeholder photos are displayed. Log in to Studio Admin from your phone or laptop to publish your real photography—your images will also appear inside the floating 3D frames on the homepage.
+              New fine-art frames and wedding stories are being prepared for display. Reserve your session below or check back soon.
             </p>
-            <button
-              onClick={openAdmin}
-              className="mt-6 px-8 py-3.5 rounded-full bg-[#D4AF37] text-[#050507] font-bold text-xs uppercase tracking-widest hover:bg-[#F5E6B3] transition"
+            <a
+              href="#booking"
+              className="inline-block mt-6 px-8 py-3.5 rounded-full bg-[#D4AF37] text-[#050507] font-bold text-xs uppercase tracking-widest hover:bg-[#F5E6B3] transition"
             >
-              Upload Your First Photograph
-            </button>
+              Book a Consultation
+            </a>
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
@@ -545,7 +579,7 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {/* 3. SIGNATURE SERVICES */}
+      {/* 3. SIGNATURE SERVICES (Includes Drone Cinematography & LED Screen) */}
       <section id="services" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-[0.35em] text-[#D4AF37]">
@@ -555,12 +589,12 @@ export function App() {
             Signature Services
           </h2>
           <p className="text-sm text-[#8E8E93] mt-3">
-            Crafted with cinema-grade lighting, editorial direction, and personalized care.
+            Crafted with cinema-grade lighting, 4K aerial drones, live LED walls, and personalized care.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((srv, index) => (
+          {displayServices.map((srv, index) => (
             <div
               key={srv.id}
               className="group luxury-card rounded-2xl p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5"
@@ -571,7 +605,7 @@ export function App() {
                     <Sparkles className="w-5 h-5" />
                   </div>
                   <span className="font-display text-2xl text-[#D4AF37]/40 font-bold">
-                    0{index + 1}
+                    {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
                 <h3 className="font-display text-2xl font-bold text-[#F7F6F2]">{srv.title}</h3>
@@ -614,7 +648,7 @@ export function App() {
               {
                 step: '02',
                 title: 'Cinematic Production',
-                desc: 'Full-frame master prime lenses, studio strobes, and unobtrusive candid direction.',
+                desc: 'Full-frame master prime lenses, 4K aerial drones, LED screens, and studio strobes.',
               },
               {
                 step: '03',
@@ -657,7 +691,7 @@ export function App() {
                     Lead Photographer Portrait
                   </p>
                   <p className="text-xs text-[#8E8E93] mt-2">
-                    Upload your portrait in Studio Admin
+                    DSP Photography Studio
                   </p>
                 </div>
               )}
@@ -685,14 +719,16 @@ export function App() {
                 Core Specialties
               </span>
               <div className="flex flex-wrap gap-2">
-                {settings.about_skills.split(',').map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0E0E12] border border-[#D4AF37]/30 text-xs text-[#F5E6B3]"
-                  >
-                    <Check className="w-3 h-3 text-[#D4AF37]" /> {skill.trim()}
-                  </span>
-                ))}
+                {[...settings.about_skills.split(','), '4K Drone Cinematography', 'LED Live Screens'].map(
+                  (skill, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0E0E12] border border-[#D4AF37]/30 text-xs text-[#F5E6B3]"
+                    >
+                      <Check className="w-3 h-3 text-[#D4AF37]" /> {skill.trim()}
+                    </span>
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -823,7 +859,7 @@ export function App() {
                   onChange={(e) => setBookingService(e.target.value)}
                   className="w-full bg-[#050507] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:border-[#D4AF37] outline-none"
                 >
-                  {services.map((s) => (
+                  {displayServices.map((s) => (
                     <option key={s.id} value={s.title}>
                       {s.title}
                     </option>
@@ -911,7 +947,7 @@ export function App() {
 
       {/* Floating WhatsApp Concierge Button */}
       <a
-        href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000'}`}
+        href={https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '') || '919000000000'}}
         target="_blank"
         rel="noreferrer"
         aria-label="Chat on WhatsApp"
