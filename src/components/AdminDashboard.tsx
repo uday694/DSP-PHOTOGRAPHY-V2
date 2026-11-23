@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Upload,
   Trash2,
+  frames,
   Eye,
   EyeOff,
   Plus,
@@ -26,6 +27,8 @@ import {
   Photo,
   ServiceItem,
   Achievement,
+  Drone,
+  Led screen;
   EventItem,
   ReviewItem,
 } from '../types';
