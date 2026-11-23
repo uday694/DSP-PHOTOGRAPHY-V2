@@ -101,8 +101,14 @@ export function App() {
     const missingExtras = EXTRA_STUDIO_SERVICES.filter(
       (extra) =>
         !existingTitles.has(extra.title.toLowerCase()) &&
-        !(extra.title.toLowerCase().includes('drone') && [...existingTitles].some((t) => t.includes('drone'))) &&
-        !(extra.title.toLowerCase().includes('led') && [...existingTitles].some((t) => t.includes('led')))
+        !(
+          extra.title.toLowerCase().includes('drone') &&
+          [...existingTitles].some((t) => t.includes('drone'))
+        ) &&
+        !(
+          extra.title.toLowerCase().includes('led') &&
+          [...existingTitles].some((t) => t.includes('led'))
+        )
     );
     return [...services, ...missingExtras];
   }, [services]);
